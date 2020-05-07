@@ -12,4 +12,8 @@ public class ObjectUtil {
         }
     }
 
+    public static boolean isEmptyStr(String str){
+        return null == str || "".equals(str.trim());
+    }
+
 }

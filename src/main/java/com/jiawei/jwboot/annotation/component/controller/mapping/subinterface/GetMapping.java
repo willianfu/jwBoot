@@ -10,10 +10,10 @@ import java.lang.annotation.*;
  * @version : 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Documented
 @RequestMapping(method = HttpMethod.GET)
 public @interface GetMapping {
-    String value() default "/";
+    String value() default "";
 
 }

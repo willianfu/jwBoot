@@ -40,7 +40,7 @@ public class JwApplication {
      */
     public static void propertiesLoad(String path) {
         properties = new Properties();
-        InputStream inputStream = JwApplication.class.getResourceAsStream(path);
+        InputStream inputStream = JwApplication.class.getClassLoader().getResourceAsStream(path);
         try {
             properties.load(inputStream);
             inputStream.close();

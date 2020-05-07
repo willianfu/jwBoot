@@ -7,16 +7,25 @@ package com.jiawei.jwboot.annotation.component.controller.mapping;
  */
 public enum HttpMethod {
     //表示所有方法
-    ALL,
+    ALL(""),
     //get方法
-    GET,
+    GET("GET"),
 
-    POST,
+    POST("POST"),
 
-    PUT,
+    PUT("PUT"),
 
-    DELETE,
+    DELETE("DELETE"),
 
-    OPTION;
+    OPTION("OPTION");
 
+    private String method;
+
+    public String getMethod() {
+        return method;
+    }
+
+    HttpMethod(String method) {
+        this.method = method;
+    }
 }

@@ -1,4 +1,4 @@
-package com.jiawei.jwboot.mvc;
+package com.jiawei.jwboot.mvc.servlet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,7 +10,7 @@ import java.io.IOException;
  * @author : willian fu
  * @version : 1.0
  */
-public class servlet extends HttpServlet {
+public class JwBootServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         super.doGet(req, resp);
