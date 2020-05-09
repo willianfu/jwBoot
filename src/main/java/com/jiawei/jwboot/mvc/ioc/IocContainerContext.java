@@ -17,6 +17,8 @@ import org.reflections.Reflections;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -56,6 +58,7 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
         }
     }
 
+    @Override
     public Set<Class<?>> iocInit() {
         //扫描所有的包
         Reflections reflections = new Reflections();
@@ -80,6 +83,22 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
         return classComponent;
     }
 
+    /**
+     * 获取某个类或接口的所有实现类
+     * @param clazz 类型class
+     * @return 类列表
+     */
+    @Override
+    public <T> List<Class<T>> getSonClass(Class<T> clazz){
+        List<Class<T>> classes = new ArrayList<>();
+        IOC_CONTAINER.forEach((claz, component) ->{
+            //取接口的所有子类
+            if (clazz.isAssignableFrom(claz)){
+                classes.add(claz);
+            }
+        });
+        return classes;
+    }
     /**
      * 映射url 与对应controller方法
      *

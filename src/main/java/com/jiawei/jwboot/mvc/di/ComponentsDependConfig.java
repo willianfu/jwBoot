@@ -1,13 +1,18 @@
 package com.jiawei.jwboot.mvc.di;
 
+import com.jiawei.jwboot.JwApplication;
 import com.jiawei.jwboot.annotation.component.Component;
 import com.jiawei.jwboot.annotation.component.di.Autowired;
+import com.jiawei.jwboot.annotation.component.di.Value;
 import com.jiawei.jwboot.mvc.ioc.IocContainerContext;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author : willian fu
@@ -17,48 +22,62 @@ import java.util.Map;
 public class ComponentsDependConfig {
 
     public void init(Map<Class, Object> ioc){
+        //先加载配置
+        Properties properties = this.propertiesLoad("application.properties");
+        ioc.put(Properties.class, properties);
         ioc.forEach((clazz, component) ->{
             //遍历所有实现类
             for (Field field : clazz.getDeclaredFields()) {
                 Autowired autowired = field.getAnnotation(Autowired.class);
+                Value value = field.getAnnotation(Value.class);
+                field.setAccessible(true);
                 if (null != autowired){
-                    Class<?> value = autowired.value();
-                    field.setAccessible(true);
                     try {
-                        field.set(component, getInstance(field.getType(), ioc, autowired));
+                        field.set(component, getInstance(field.getType(), autowired));
                     } catch (IllegalAccessException e) {
-                        throw new RuntimeException("无法向 ["+ clazz.getTypeName()+"] 注入 [" + field.getName() +"] 依赖");
+                        throw new RuntimeException("无法向 ["+ clazz.getTypeName()+"] 的属性 [" + field.getName() +"] 注入依赖");
                     } catch (RuntimeException e){
-                        throw new RuntimeException("无法向 ["+ clazz.getTypeName()+"] 注入 [" + field.getName() +"] 依赖 因为 "+ e.getMessage());
+                        throw new RuntimeException("无法向 ["+ clazz.getTypeName()+"] 的属性 [" + field.getName() +"] 注入依赖 因为 "+ e.getMessage());
+                    }
+                }else if (null != value && !"".equals(value.value())){
+                    //注入配置文件的配置
+                    try {
+                        Object cast = field.getType().cast(properties.get(value.value()));
+                        field.set(component, cast);
+                    } catch (Exception e) {
+                        throw new RuntimeException("无法向 ["+ clazz.getTypeName()+"] 的属性 [" + field.getName() +"] 注入配置值，请检查配置文件");
                     }
                 }
             }
         });
     }
 
+
     /**
-     * 获取某接口类/的所有子类
-     * @param clazz
-     * @param ioc
-     * @return
+     * 加载配置文件
+     * @param path
      */
-    private List<Class<?>> getSonClass(Class<?> clazz, Map<Class, Object> ioc){
-        List<Class<?>> classes = new ArrayList<>();
-        ioc.forEach((claz, component) ->{
-            //取接口的所有子类
-            if (clazz.isAssignableFrom(claz)){
-                classes.add(claz);
-            }
-        });
-        return classes;
+    public Properties propertiesLoad(String path) {
+        Properties properties = new Properties();
+        InputStream inputStream = JwApplication.class.getClassLoader().getResourceAsStream(path);
+        try {
+            properties.load(inputStream);
+            inputStream.close();
+            return properties;
+        } catch (IOException e) {
+            System.err.println("加载配置文件失败");
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    private Object getInstance(Class<?> clazz, Map<Class, Object> ioc, Autowired autowired){
+
+    private Object getInstance(Class<?> clazz, Autowired autowired){
         //判断注解是否写了值
         if (!autowired.value().isAssignableFrom(Autowired.class)){
             return IocContainerContext.getInstance().getBeanByClass(autowired.value());
         }else {
-            List<Class<?>> sonClass = getSonClass(clazz, ioc);
+            List<? extends Class<?>> sonClass = IocContainerContext.getInstance().getSonClass(clazz);
             if (sonClass.size() > 1){
                 //扫描到多个实现类
                 throw new RuntimeException("依赖属性类型 [" + clazz.getTypeName() + "] 注入时发现有属性多个实现类，请指明具体注入哪个");

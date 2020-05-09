@@ -1,5 +1,8 @@
 package com.jiawei.jwboot.mvc.ioc;
 
+import java.util.List;
+import java.util.Set;
+
 /**
  * @author : willian fu
  * @version : 1.0
@@ -26,4 +29,17 @@ public interface IocContainer {
      * @return 被移除的bean
      */
     <T> T removeBeanByClass(Class<T> clazz);
+
+    /**
+     * 初始化容器
+     * @return 被扫描到的类
+     */
+    Set<Class<?>> iocInit();
+
+    /**
+     * 获取某个类或接口的所有实现类
+     * @param clazz 类型class
+     * @return 类列表
+     */
+    <T> List<Class<T>> getSonClass(Class<T> clazz);
 }
