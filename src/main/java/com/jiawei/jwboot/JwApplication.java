@@ -1,8 +1,6 @@
 package com.jiawei.jwboot;
 
-
 import com.jiawei.jwboot.annotation.component.Component;
-import com.jiawei.jwboot.mvc.ioc.IocContainer;
 import com.jiawei.jwboot.mvc.ioc.IocContainerContext;
 import com.jiawei.jwboot.utils.ObjectUtil;
 
@@ -13,6 +11,7 @@ import java.util.Set;
  * @author : willian fu
  * @version : 1.0
  */
+@Component
 public class JwApplication {
 
     private static Set<Class<?>> classes;
@@ -38,4 +37,6 @@ public class JwApplication {
             instance.getBeanByClass(listener).run();
         });
     }
+
+
 }
