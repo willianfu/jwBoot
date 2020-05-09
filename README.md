@@ -15,7 +15,7 @@
 
 ###创建应用
 
-```
+```java
 
 @JwBootApplication
 public class ApplicationTest implements CommandLineRunner {
@@ -38,11 +38,11 @@ public class ApplicationTest implements CommandLineRunner {
         System.out.println("启动应用 " + appName);
     }
 
-```java
+```
 
 ###依赖注入
 
-```
+```java
 @Controller
 @RequestMapping("/url")
 public class TestController {
@@ -65,5 +65,5 @@ public class TestController {
 
 }
 
-```java
+```
 
