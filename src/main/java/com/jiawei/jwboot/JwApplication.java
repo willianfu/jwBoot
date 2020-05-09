@@ -1,10 +1,9 @@
 package com.jiawei.jwboot;
 
-import com.jiawei.jwboot.annotation.component.Component;
+
 import com.jiawei.jwboot.mvc.ioc.IocContainerContext;
 import com.jiawei.jwboot.utils.ObjectUtil;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -31,7 +30,6 @@ public class JwApplication {
         ObjectUtil.notNull(clazz);
         classes = IocContainerContext.getInstance().iocInit();
         propertiesLoad("application.properties");
-
     }
 
     /**

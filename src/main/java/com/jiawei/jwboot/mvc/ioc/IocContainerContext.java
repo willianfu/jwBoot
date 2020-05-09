@@ -3,8 +3,15 @@ package com.jiawei.jwboot.mvc.ioc;
 
 import com.jiawei.jwboot.annotation.component.Component;
 import com.jiawei.jwboot.annotation.component.controller.Controller;
+import com.jiawei.jwboot.annotation.component.controller.mapping.HttpMethod;
 import com.jiawei.jwboot.annotation.component.controller.mapping.RequestMapping;
+import com.jiawei.jwboot.annotation.component.controller.mapping.subinterface.DeleteMapping;
+import com.jiawei.jwboot.annotation.component.controller.mapping.subinterface.GetMapping;
+import com.jiawei.jwboot.annotation.component.controller.mapping.subinterface.PostMapping;
+import com.jiawei.jwboot.annotation.component.controller.mapping.subinterface.PutMapping;
+import com.jiawei.jwboot.mvc.di.ComponentsDependConfig;
 import com.jiawei.jwboot.mvc.servlet.HandlerMappingBean;
+import com.jiawei.jwboot.mvc.servlet.Mapping;
 import com.jiawei.jwboot.utils.ObjectUtil;
 import org.reflections.Reflections;
 
@@ -31,6 +38,7 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
      */
     @Override
     public <T> T getBeanByClass(Class<T> clazz) {
+        Object o = IOC_CONTAINER.get(clazz);
         return clazz.cast(IOC_CONTAINER.get(clazz));
     }
 
@@ -68,6 +76,7 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
                 }
             }
         }
+        this.getBeanByClass(ComponentsDependConfig.class).init(IOC_CONTAINER);
         return classComponent;
     }
 
@@ -81,25 +90,12 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
         if (null != clazz.getAnnotation(Controller.class)) {
             Method[] methods = clazz.getMethods();
             for (Method method : methods) {
-                RequestMapping requestMapping = null;
-                Annotation[] declaredAnnotations = method.getAnnotations();
-                for (Annotation annotation :declaredAnnotations) {
-                    if (method.getName().equals("controller2")){
-                        System.out.println(RequestMapping.class.isAssignableFrom(annotation.annotationType()));
-                        System.out.println(method.isAnnotationPresent(RequestMapping.class));
-                        System.out.println(annotation.annotationType().getTypeName());
-                        System.out.println();
-                    }
-                    requestMapping = (RequestMapping)annotation;
-                    if (RequestMapping.class.isAssignableFrom(annotation.annotationType())){
-                        requestMapping = (RequestMapping)annotation;
-                    }
-                }
+                Mapping requestMapping = getMethodRequestMapping(method);
                 RequestMapping classMapping = clazz.getDeclaredAnnotation(RequestMapping.class);
                 if (null != requestMapping) {
                     String uri = "";
                     String classMethod = "";
-                    String methodMapping = requestMapping.method().getMethod();
+                    String methodMapping = requestMapping.getMethod().getMethod();
                     if (null != classMapping){
                         uri = classMapping.value().trim();
                         classMethod = classMapping.method().getMethod();
@@ -113,7 +109,7 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
                         methodMapping = classMethod;
                     }
                     if (!ObjectUtil.isEmptyStr(uri)){
-                        uri += requestMapping.value().trim();
+                        uri += requestMapping.getUri().trim();
                     }
                     String key = methodMapping + " " + uri;
                     HandlerMappingBean mappingBean = new HandlerMappingBean();
@@ -131,6 +127,37 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
 
     public Map<String, HandlerMappingBean> getHandlerMapping() {
         return HANDLER_MAPPING;
+    }
+
+    private Mapping getMethodRequestMapping(Method method){
+        for (Annotation annotation :method.getAnnotations()) {
+            Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (Mapping.mappingMap.contains(annotationType)){
+                String uri = "";
+                HttpMethod httpMethod = null;
+                if (annotationType.isAssignableFrom(RequestMapping.class)){
+                    RequestMapping request = (RequestMapping) annotation;
+                    uri = request.value();
+                    httpMethod = request.method();
+                }else {
+                    RequestMapping requestMapping = annotationType.getAnnotation(RequestMapping.class);
+                    if (null != requestMapping) {
+                        httpMethod = requestMapping.method();
+                        if (GetMapping.class.isAssignableFrom(annotationType)){
+                            uri = ((GetMapping) annotation).value();
+                        }else if (PutMapping.class.isAssignableFrom(annotationType)){
+                            uri = ((PutMapping) annotation).value();
+                        }else if (PostMapping.class.isAssignableFrom(annotationType)){
+                            uri = ((PostMapping) annotation).value();
+                        }else if (DeleteMapping.class.isAssignableFrom(annotationType)){
+                            uri = ((DeleteMapping) annotation).value();
+                        }
+                    }
+                }
+                return new Mapping(uri, httpMethod);
+            }
+        }
+        return null;
     }
 
     private static boolean isClass(Class<?> clazz) {
