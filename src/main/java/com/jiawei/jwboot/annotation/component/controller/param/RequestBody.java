@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * 此注解标记的注解将被
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
+@Target({ElementType.PARAMETER})
 @Documented
 public @interface RequestBody {
     boolean value() default true;

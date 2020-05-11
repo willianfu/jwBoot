@@ -10,7 +10,7 @@ import java.lang.annotation.*;
  * @version : 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ElementType.METHOD})
 @Documented
 @RequestMapping(method = HttpMethod.DELETE)
 public @interface DeleteMapping {

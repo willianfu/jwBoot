@@ -19,6 +19,6 @@ public @interface RequestParam {
     boolean required() default true;
 
     //参数默认值
-    String defaultValue() default "null";
+    String defaultValue() default "";
 
 }

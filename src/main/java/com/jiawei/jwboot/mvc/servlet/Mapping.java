@@ -14,6 +14,7 @@ import java.util.Set;
 /**
  * @author : willian fu
  * @version : 1.0
+ * uri 与 具体handler的映射关系
  */
 public class Mapping {
 

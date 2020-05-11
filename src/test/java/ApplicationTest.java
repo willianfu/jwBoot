@@ -20,7 +20,7 @@ public class ApplicationTest implements CommandLineRunner {
 
     public static void main(String[] args) {
         JwApplication.run(ApplicationTest.class, args);
-        IocContainerContext.getInstance().getBeanByClass(TestController.class).test();
+        //IocContainerContext.getInstance().getBeanByClass(TestController.class).test();
     }
 
     /**

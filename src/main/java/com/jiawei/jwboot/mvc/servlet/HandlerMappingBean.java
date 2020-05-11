@@ -1,5 +1,9 @@
 package com.jiawei.jwboot.mvc.servlet;
 
+import com.alibaba.fastjson.JSON;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.lang.reflect.Method;
 
 /**
@@ -17,6 +21,37 @@ public class HandlerMappingBean {
 
     //controller实例
     private Object instance;
+
+    private String returnType;
+
+    /**
+     * 根据类型返回相应的值
+     * @param response 响应
+     * @param object controller方法返回值
+     */
+    public void getReturn(HttpServletResponse response, Object object) throws IOException {
+        if ("View".equals(this.returnType)){
+            response.setContentType("text/html");
+            response.setCharacterEncoding("utf-8");
+            //寻找视图
+
+        }else if("Object".equals(this.returnType)){
+            //对象转json
+            response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
+            response.getWriter().write(JSON.toJSONString(object));
+        }else {
+
+        }
+    }
+
+    public String getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
+    }
 
     public String getUri() {
         return uri;

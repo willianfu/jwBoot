@@ -9,6 +9,7 @@ import com.jiawei.jwboot.annotation.component.controller.mapping.subinterface.De
 import com.jiawei.jwboot.annotation.component.controller.mapping.subinterface.GetMapping;
 import com.jiawei.jwboot.annotation.component.controller.mapping.subinterface.PostMapping;
 import com.jiawei.jwboot.annotation.component.controller.mapping.subinterface.PutMapping;
+import com.jiawei.jwboot.annotation.component.controller.result.ResponseBody;
 import com.jiawei.jwboot.mvc.di.ComponentsDependConfig;
 import com.jiawei.jwboot.mvc.servlet.HandlerMappingBean;
 import com.jiawei.jwboot.mvc.servlet.Mapping;
@@ -110,31 +111,20 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
             Method[] methods = clazz.getMethods();
             for (Method method : methods) {
                 Mapping requestMapping = getMethodRequestMapping(method);
-                RequestMapping classMapping = clazz.getDeclaredAnnotation(RequestMapping.class);
                 if (null != requestMapping) {
-                    String uri = "";
-                    String classMethod = "";
-                    String methodMapping = requestMapping.getMethod().getMethod();
-                    if (null != classMapping){
-                        uri = classMapping.value().trim();
-                        classMethod = classMapping.method().getMethod();
-                    }
-                    //校验请求方法是否冲突
-                    if (!ObjectUtil.isEmptyStr(classMethod) && !ObjectUtil.isEmptyStr(methodMapping)){
-                        if (!classMethod.equalsIgnoreCase(methodMapping)){
-                            throw new RuntimeException(clazz.getTypeName() + " 中 " + method.getName() + " 与类上的注解URI映射，请求方法出现冲突，请检查");
-                        }
-                        //请求方法相同，舍弃方法标记使用类请求方法
-                        methodMapping = classMethod;
-                    }
-                    if (!ObjectUtil.isEmptyStr(uri)){
-                        uri += requestMapping.getUri().trim();
-                    }
-                    String key = methodMapping + " " + uri;
+                    String key = this.getRequestMappingUri(clazz, method, requestMapping);
                     HandlerMappingBean mappingBean = new HandlerMappingBean();
                     mappingBean.setInstance(instance);
                     mappingBean.setMethod(method);
                     mappingBean.setUri(key.trim());
+                    if (ObjectUtil.isEmptyStr(mappingBean.getReturnType())){
+                        //检查返回的是视图还是对象，默认返回视图
+                        if (null != clazz.getAnnotation(ResponseBody.class)){
+                            mappingBean.setReturnType("Object");
+                        }else {
+                            mappingBean.setReturnType("View");
+                        }
+                    }
                     if (null != HANDLER_MAPPING.get(mappingBean.getUri())) {
                         throw new RuntimeException("请求路径 [" + mappingBean.getUri() + "] 已经定义过了");
                     }
@@ -146,6 +136,36 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
 
     public Map<String, HandlerMappingBean> getHandlerMapping() {
         return HANDLER_MAPPING;
+    }
+
+    /**
+     * 获取完整URI路径映射
+     * @param clazz 类
+     * @param method 方法
+     * @param requestMapping 映射
+     * @return URI路径
+     */
+    private String getRequestMappingUri(Class<?> clazz, Method method, Mapping requestMapping){
+        String uri = "";
+        String classMethod = "";
+        RequestMapping classMapping = clazz.getDeclaredAnnotation(RequestMapping.class);
+        String methodMapping = requestMapping.getMethod().getMethod();
+        if (null != classMapping){
+            uri = classMapping.value().trim();
+            classMethod = classMapping.method().getMethod();
+        }
+        //校验请求方法是否冲突
+        if (!ObjectUtil.isEmptyStr(classMethod) && !ObjectUtil.isEmptyStr(methodMapping)){
+            if (!classMethod.equalsIgnoreCase(methodMapping)){
+                throw new RuntimeException(clazz.getTypeName() + " 中 " + method.getName() + " 与类上的注解URI映射，请求方法出现冲突，请检查");
+            }
+            //请求方法相同，舍弃方法标记使用类请求方法
+            methodMapping = classMethod;
+        }
+        if (!ObjectUtil.isEmptyStr(uri)){
+            uri += requestMapping.getUri().trim();
+        }
+        return methodMapping + " " + uri;
     }
 
     private Mapping getMethodRequestMapping(Method method){
