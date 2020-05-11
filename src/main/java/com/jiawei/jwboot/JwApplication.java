@@ -1,11 +1,11 @@
 package com.jiawei.jwboot;
 
 import com.jiawei.jwboot.annotation.component.Component;
+import com.jiawei.jwboot.annotation.component.di.Value;
 import com.jiawei.jwboot.mvc.ioc.IocContainerContext;
+import com.jiawei.jwboot.server.TomcatWebServer;
+import com.jiawei.jwboot.server.WebServer;
 import com.jiawei.jwboot.utils.ObjectUtil;
-
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import java.util.List;
 import java.util.Set;
@@ -15,9 +15,16 @@ import java.util.Set;
  * @version : 1.0
  */
 @WebListener
-public class JwApplication implements ServletContextListener {
+@Component
+public class JwApplication  {
 
     private static Set<Class<?>> classes;
+
+    @Value("server.port")
+    private Integer port;
+
+    @Value("server.context-path")
+    private String rootPath;
 
     /**
      * 启动容器，框架启动入口
@@ -30,10 +37,15 @@ public class JwApplication implements ServletContextListener {
         ObjectUtil.notNull(clazz);
         classes = IocContainerContext.getInstance().iocInit();
         loadApplicationListener();
+        IocContainerContext.getInstance().getBeanByClass(JwApplication.class).starterWebContainer();
     }
 
+    private void starterWebContainer() {
+        WebServer server = new TomcatWebServer();
+        server.start(port, rootPath);
+    }
 
-    private static void loadApplicationListener(){
+    private static void loadApplicationListener() {
         IocContainerContext instance = IocContainerContext.getInstance();
         List<Class<CommandLineRunner>> sonListener = instance.getSonClass(CommandLineRunner.class);
         sonListener.forEach(listener -> {
@@ -41,14 +53,4 @@ public class JwApplication implements ServletContextListener {
         });
     }
 
-    @Override
-    public void contextInitialized(ServletContextEvent sce) {
-        System.out.println("————————————————tomcat 启动完成——————————————————");
-        JwApplication.run(JwApplication.class, null);
-    }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-
-    }
 }

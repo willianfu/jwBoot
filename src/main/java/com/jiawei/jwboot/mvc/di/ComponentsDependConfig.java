@@ -5,6 +5,7 @@ import com.jiawei.jwboot.annotation.component.Component;
 import com.jiawei.jwboot.annotation.component.di.Autowired;
 import com.jiawei.jwboot.annotation.component.di.Value;
 import com.jiawei.jwboot.mvc.ioc.IocContainerContext;
+import com.jiawei.jwboot.utils.ObjectUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +42,7 @@ public class ComponentsDependConfig {
                 }else if (null != value && !"".equals(value.value())){
                     //注入配置文件的配置
                     try {
-                        Object cast = field.getType().cast(properties.get(value.value()));
+                        Object cast = ObjectUtil.typeCover(field.getType(), properties.get(value.value()));
                         field.set(component, cast);
                     } catch (Exception e) {
                         throw new RuntimeException("无法向 ["+ clazz.getTypeName()+"] 的属性 [" + field.getName() +"] 注入配置值，请检查配置文件");
