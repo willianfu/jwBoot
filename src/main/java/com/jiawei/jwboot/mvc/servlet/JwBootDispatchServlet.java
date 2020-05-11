@@ -1,6 +1,6 @@
 package com.jiawei.jwboot.mvc.servlet;
 
-import com.alibaba.fastjson.JSONObject;
+import com.jiawei.jwboot.annotation.component.controller.param.RequestBody;
 import com.jiawei.jwboot.annotation.component.controller.param.RequestParam;
 import com.jiawei.jwboot.annotation.component.controller.result.ResponseBody;
 import com.jiawei.jwboot.mvc.ioc.IocContainerContext;
@@ -31,11 +31,37 @@ public class JwBootDispatchServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp){
+        this.handler(req, resp);
+    }
+
+    @Override
+    protected void doHead(HttpServletRequest req, HttpServletResponse resp){
+        this.handler(req, resp);
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) {
+        this.handler(req, resp);
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp){
+        this.handler(req, resp);
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp){
+        this.handler(req, resp);
+    }
+
+    @Override
+    protected void doTrace(HttpServletRequest req, HttpServletResponse resp){
         this.handler(req, resp);
     }
 
     private void handler(HttpServletRequest req, HttpServletResponse resp){
+        System.out.println("====>>>>收到请求 " + req.getRequestURI());
         HandlerMappingBean handlerMapping = dispatch.get(req.getMethod() + " " + req.getRequestURI());
         if (null == handlerMapping){
             HttpUtil.returnNotFound(resp);
@@ -45,7 +71,8 @@ public class JwBootDispatchServlet extends HttpServlet {
     }
 
     private void doHandler(HttpServletRequest req,  HttpServletResponse resp, HandlerMappingBean handlerMapping){
-        boolean isJson = req.getContentType().contains("application/json");
+        //boolean isJson = req.getContentType().contains("application/json");
+        boolean isJson = true;
         //获取处理方法
         Method mappingMethod = handlerMapping.getMethod();
         //获取所有参数
@@ -59,8 +86,8 @@ public class JwBootDispatchServlet extends HttpServlet {
                 params[i] = resp;
             }else {
                 //其他类型的参数注入，必须带注解
-                RequestParam requestParam = parameters[i].getAnnotation(RequestParam.class);
-                ResponseBody responseBody = parameters[i].getAnnotation(ResponseBody.class);
+                RequestParam requestParam = parameters[i].getDeclaredAnnotation(RequestParam.class);
+                RequestBody responseBody = parameters[i].getDeclaredAnnotation(RequestBody.class);
                 if (null != requestParam){
                     //取参数名
                     String parameter = req.getParameter(requestParam.value());
@@ -103,7 +130,7 @@ public class JwBootDispatchServlet extends HttpServlet {
     }
 
     private String getViewByName(String html){
-        return "";
+        return "应当返回html视图，视图解析部分还未完成";
     }
 
 }

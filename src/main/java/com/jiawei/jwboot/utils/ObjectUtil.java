@@ -15,6 +15,10 @@ public class ObjectUtil {
         }
     }
 
+    public static boolean isNotNull(Object obj){
+        return null != obj;
+    }
+
     public static boolean isEmptyStr(String str){
         return null == str || "".equals(str.trim());
     }

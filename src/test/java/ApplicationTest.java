@@ -2,8 +2,6 @@ import com.jiawei.jwboot.CommandLineRunner;
 import com.jiawei.jwboot.JwApplication;
 import com.jiawei.jwboot.annotation.JwBootApplication;
 import com.jiawei.jwboot.annotation.component.di.Value;
-import com.jiawei.jwboot.mvc.ioc.IocContainerContext;
-import controller.TestController;
 
 /**
  * @author : willian fu

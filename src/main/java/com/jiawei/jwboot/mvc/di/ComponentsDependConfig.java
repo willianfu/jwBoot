@@ -63,11 +63,11 @@ public class ComponentsDependConfig {
             properties.load(inputStream);
             inputStream.close();
             return properties;
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("加载配置文件失败");
             e.printStackTrace();
         }
-        return null;
+        return properties;
     }
 
 

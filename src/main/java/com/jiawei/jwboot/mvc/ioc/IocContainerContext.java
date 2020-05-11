@@ -111,7 +111,7 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
             Method[] methods = clazz.getMethods();
             for (Method method : methods) {
                 Mapping requestMapping = getMethodRequestMapping(method);
-                if (null != requestMapping) {
+                if (ObjectUtil.isNotNull(requestMapping)) {
                     String key = this.getRequestMappingUri(clazz, method, requestMapping);
                     HandlerMappingBean mappingBean = new HandlerMappingBean();
                     mappingBean.setInstance(instance);
@@ -119,13 +119,14 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
                     mappingBean.setUri(key.trim());
                     if (ObjectUtil.isEmptyStr(mappingBean.getReturnType())){
                         //检查返回的是视图还是对象，默认返回视图
-                        if (null != clazz.getAnnotation(ResponseBody.class)){
+                        if (ObjectUtil.isNotNull(clazz.getAnnotation(ResponseBody.class) )
+                                || ObjectUtil.isNotNull(method.getAnnotation(ResponseBody.class))){
                             mappingBean.setReturnType("Object");
                         }else {
                             mappingBean.setReturnType("View");
                         }
                     }
-                    if (null != HANDLER_MAPPING.get(mappingBean.getUri())) {
+                    if (ObjectUtil.isNotNull(HANDLER_MAPPING.get(mappingBean.getUri()))) {
                         throw new RuntimeException("请求路径 [" + mappingBean.getUri() + "] 已经定义过了");
                     }
                     HANDLER_MAPPING.put(mappingBean.getUri(), mappingBean);
@@ -150,7 +151,7 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
         String classMethod = "";
         RequestMapping classMapping = clazz.getDeclaredAnnotation(RequestMapping.class);
         String methodMapping = requestMapping.getMethod().getMethod();
-        if (null != classMapping){
+        if (ObjectUtil.isNotNull(classMapping)){
             uri = classMapping.value().trim();
             classMethod = classMapping.method().getMethod();
         }
@@ -162,10 +163,7 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
             //请求方法相同，舍弃方法标记使用类请求方法
             methodMapping = classMethod;
         }
-        if (!ObjectUtil.isEmptyStr(uri)){
-            uri += requestMapping.getUri().trim();
-        }
-        return methodMapping + " " + uri;
+        return methodMapping + " " + uri + requestMapping.getUri().trim();
     }
 
     private Mapping getMethodRequestMapping(Method method){

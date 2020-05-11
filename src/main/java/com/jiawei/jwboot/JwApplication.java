@@ -4,6 +4,9 @@ import com.jiawei.jwboot.annotation.component.Component;
 import com.jiawei.jwboot.mvc.ioc.IocContainerContext;
 import com.jiawei.jwboot.utils.ObjectUtil;
 
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 import java.util.List;
 import java.util.Set;
 
@@ -11,8 +14,8 @@ import java.util.Set;
  * @author : willian fu
  * @version : 1.0
  */
-@Component
-public class JwApplication {
+@WebListener
+public class JwApplication implements ServletContextListener {
 
     private static Set<Class<?>> classes;
 
@@ -38,5 +41,14 @@ public class JwApplication {
         });
     }
 
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        System.out.println("————————————————tomcat 启动完成——————————————————");
+        JwApplication.run(JwApplication.class, null);
+    }
 
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+
+    }
 }
