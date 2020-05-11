@@ -14,7 +14,7 @@ public class HttpUtil {
 
     public static void returnNotFound(HttpServletResponse response) {
         try {
-            response.sendError(500, "Sorry!\n not found you url\n please check!");
+            response.sendError(404, "Sorry!\n not found you resource\n please check!");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -23,6 +23,14 @@ public class HttpUtil {
     public static void returnParamBad(HttpServletResponse response, String message) {
         try {
             response.sendError(400, message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void returnServerError(HttpServletResponse response, String message) {
+        try {
+            response.sendError(500, message);
         } catch (IOException e) {
             e.printStackTrace();
         }

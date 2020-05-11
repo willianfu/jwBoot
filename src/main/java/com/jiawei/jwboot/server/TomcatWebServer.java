@@ -20,7 +20,7 @@ public class TomcatWebServer implements WebServer{
         Tomcat tomcat = new Tomcat();
         tomcatServer = tomcat;
         tomcat.setPort(port);
-        Context ctx = tomcat.addContext("/", System.getProperty("user.dir")+"/doc");
+        Context ctx = tomcat.addContext("/", System.getProperty("user.dir"));
         Tomcat.addServlet(ctx, "JwBootDispatchServlet", new JwBootDispatchServlet());
         ctx.addServletMapping("/*", "JwBootDispatchServlet");
         try {

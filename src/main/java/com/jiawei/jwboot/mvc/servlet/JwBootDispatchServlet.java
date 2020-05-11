@@ -4,14 +4,17 @@ import com.jiawei.jwboot.annotation.component.controller.param.RequestBody;
 import com.jiawei.jwboot.annotation.component.controller.param.RequestParam;
 import com.jiawei.jwboot.annotation.component.controller.result.ResponseBody;
 import com.jiawei.jwboot.mvc.ioc.IocContainerContext;
+import com.jiawei.jwboot.utils.AppUtil;
 import com.jiawei.jwboot.utils.HttpUtil;
 import com.jiawei.jwboot.utils.ObjectUtil;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -22,6 +25,8 @@ import java.util.Map;
  * @version : 1.0
  */
 public class JwBootDispatchServlet extends HttpServlet {
+
+    private static Logger log = AppUtil.getLogger(JwBootDispatchServlet.class);
 
     public static Map<String, HandlerMappingBean> dispatch = IocContainerContext.getInstance().getHandlerMapping();
 
@@ -61,7 +66,6 @@ public class JwBootDispatchServlet extends HttpServlet {
     }
 
     private void handler(HttpServletRequest req, HttpServletResponse resp){
-        System.out.println("====>>>>收到请求 " + req.getRequestURI());
         HandlerMappingBean handlerMapping = dispatch.get(req.getMethod() + " " + req.getRequestURI());
         if (null == handlerMapping){
             HttpUtil.returnNotFound(resp);
@@ -72,6 +76,12 @@ public class JwBootDispatchServlet extends HttpServlet {
 
     private void doHandler(HttpServletRequest req,  HttpServletResponse resp, HandlerMappingBean handlerMapping){
         //boolean isJson = req.getContentType().contains("application/json");
+        log.info("Received request [{} {}]", req.getMethod(), req.getRequestURI());
+        try {
+            req.setCharacterEncoding("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         boolean isJson = true;
         //获取处理方法
         Method mappingMethod = handlerMapping.getMethod();
@@ -93,7 +103,7 @@ public class JwBootDispatchServlet extends HttpServlet {
                     String parameter = req.getParameter(requestParam.value());
                     if (ObjectUtil.isEmptyStr(parameter)){
                         if (requestParam.required()){
-                            HttpUtil.returnParamBad(resp, "Parameter " + parameters[i].getName() + " is necessary");
+                            HttpUtil.returnParamBad(resp, "Parameter " + requestParam.value() + " is necessary");
                             return;
                         }else {
                             //设置默认值
@@ -101,7 +111,7 @@ public class JwBootDispatchServlet extends HttpServlet {
                                 params[i] = ObjectUtil.typeCover(parameters[i].getType(), requestParam.defaultValue());
                             } catch (Exception e) {
                                 e.printStackTrace();
-                                HttpUtil.returnParamBad(resp, "Default value parameter " + parameters[i].getName() + " Cannot be converted into " + parameters[i].getType().getTypeName());
+                                HttpUtil.returnParamBad(resp, "Default value parameter " + requestParam.value() + " Cannot be converted into " + parameters[i].getType().getTypeName());
                                 return;
                             }
                         }
@@ -117,20 +127,13 @@ public class JwBootDispatchServlet extends HttpServlet {
         try {
             Object returns = handlerMapping.getMethod().invoke(handlerMapping.getInstance(), params);
             //构造返回数据
-            String returnType = handlerMapping.getReturnType();
-            if ("View".equals(returnType)){
-                HttpUtil.writerToResponseHtml(resp, getViewByName(returns.toString()));
-            }else if ("Object".equals(returnType)){
-                HttpUtil.writerToResponseJson(resp, returns);
-            }
+            handlerMapping.getReturn(resp, returns);
+        } catch (IOException e) {
+            e.printStackTrace();
+            HttpUtil.returnServerError(resp, "Cannot found html view");
         } catch (IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
             HttpUtil.returnParamBad(resp,"Parameters cannot be mapped correctly \n URL: " + handlerMapping.getUri());
         }
     }
-
-    private String getViewByName(String html){
-        return "应当返回html视图，视图解析部分还未完成";
-    }
-
 }

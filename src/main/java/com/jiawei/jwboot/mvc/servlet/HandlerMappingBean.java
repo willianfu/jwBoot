@@ -1,9 +1,14 @@
 package com.jiawei.jwboot.mvc.servlet;
 
 import com.alibaba.fastjson.JSON;
+import com.jiawei.jwboot.utils.HttpUtil;
+import com.jiawei.jwboot.utils.ObjectUtil;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 
 /**
@@ -34,7 +39,18 @@ public class HandlerMappingBean {
             response.setContentType("text/html");
             response.setCharacterEncoding("utf-8");
             //寻找视图
-
+            //InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("template/hello.html");
+            InputStream viewInputStream = this.getClass().getClassLoader().getResourceAsStream("template/" + object.toString() + ".html");
+            if (!ObjectUtil.isNotNull(viewInputStream)){
+                HttpUtil.returnNotFound(response);
+                return;
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(viewInputStream));
+            String line = null;
+            while (ObjectUtil.isNotNull(line = reader.readLine())){
+                response.getWriter().append(line);
+            }
+            viewInputStream.close();
         }else if("Object".equals(this.returnType)){
             //对象转json
             response.setContentType("application/json");

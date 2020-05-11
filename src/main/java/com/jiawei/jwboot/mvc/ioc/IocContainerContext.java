@@ -13,8 +13,10 @@ import com.jiawei.jwboot.annotation.component.controller.result.ResponseBody;
 import com.jiawei.jwboot.mvc.di.ComponentsDependConfig;
 import com.jiawei.jwboot.mvc.servlet.HandlerMappingBean;
 import com.jiawei.jwboot.mvc.servlet.Mapping;
+import com.jiawei.jwboot.utils.AppUtil;
 import com.jiawei.jwboot.utils.ObjectUtil;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -32,6 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class IocContainerContext extends AbstractIocContext implements IocContainer {
 
     private static final Map<String, HandlerMappingBean> HANDLER_MAPPING = new ConcurrentHashMap();
+
+    private static Logger log = AppUtil.getLogger(IocContainerContext.class);
 
     /**
      * 从容器中获取一个Bean
@@ -62,7 +66,12 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
     @Override
     public Set<Class<?>> iocInit() {
         //扫描所有的包
-        Reflections reflections = new Reflections();
+        Reflections reflections = null;
+        try {
+            reflections = new Reflections();
+        } catch (Exception e) {
+
+        }
         Set<Class<?>> component = reflections.getTypesAnnotatedWith(Component.class);
         Set<Class<?>> classComponent = reflections.getTypesAnnotatedWith(Component.class);
         IocContainerContext instance = IocContainerContext.getInstance();
@@ -70,6 +79,7 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
         for (Class<?> clazz : component) {
             //加载组件
             if (isClass(clazz)) {
+                log.info("Scan to class [{}]", clazz.getTypeName());
                 try {
                     Object instance1 = clazz.newInstance();
                     instance.putBeanToIoc(instance1);
@@ -129,6 +139,7 @@ public class IocContainerContext extends AbstractIocContext implements IocContai
                     if (ObjectUtil.isNotNull(HANDLER_MAPPING.get(mappingBean.getUri()))) {
                         throw new RuntimeException("请求路径 [" + mappingBean.getUri() + "] 已经定义过了");
                     }
+                    log.info("Handler mapping controller:[{}] to method:[{}] URI:[{}]", clazz.getTypeName(), method.getName(), mappingBean.getUri());
                     HANDLER_MAPPING.put(mappingBean.getUri(), mappingBean);
                 }
             }

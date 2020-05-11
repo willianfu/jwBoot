@@ -5,6 +5,7 @@ import com.jiawei.jwboot.annotation.component.di.Value;
 import com.jiawei.jwboot.mvc.ioc.IocContainerContext;
 import com.jiawei.jwboot.server.TomcatWebServer;
 import com.jiawei.jwboot.server.WebServer;
+import com.jiawei.jwboot.utils.AppUtil;
 import com.jiawei.jwboot.utils.ObjectUtil;
 import javax.servlet.annotation.WebListener;
 import java.util.List;
@@ -34,6 +35,7 @@ public class JwApplication  {
      * @return
      */
     public static void run(Class<?> clazz, String[] args) {
+        System.out.println(AppUtil.getStartLogo());
         ObjectUtil.notNull(clazz);
         classes = IocContainerContext.getInstance().iocInit();
         loadApplicationListener();
