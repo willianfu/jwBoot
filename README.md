@@ -9,11 +9,11 @@
 
 @Component、@Configuration、@Bean
 
-@Controller、@Service、 @RequestMapping、@GetMapping、@PostMapping、@PutMapping、@DeleteMapping
+@Controller、@RestController、@Service、 @RequestMapping、@GetMapping、@PostMapping、@PutMapping、@DeleteMapping
 
-@Autowired、@Value
+@Autowired、@Value、@RequestBody、@RequestParam、@ResponseBody
 
-###创建应用
+### 创建应用
 
 ```java
 
@@ -40,7 +40,7 @@ public class ApplicationTest implements CommandLineRunner {
 
 ```
 
-###依赖注入
+### 依赖注入
 
 ```java
 @Controller
@@ -52,17 +52,20 @@ public class TestController {
 
     @Autowired
     private XXXClass beanB;
-
-    @RequestMapping(value = "/get", method = HttpMethod.POST)
-    public Object controller1(){
-        return null;
+    
+    @RequestMapping(value = "/test", method = HttpMethod.GET)
+    public Object controller1(@RequestParam("name") String name,
+                              @RequestParam("age") Integer age){
+        System.out.println("收到GET请求数据 => name=" + name + " age="+age);
+        return "收到GET请求数据 => name=" + name + " age="+age;
     }
 
-    @GetMapping(value = "/get")
-    public Object controller2(){
-        return null;
+    @ResponseBody
+    @PostMapping(value = "/test")
+    public Object controller2(@RequestBody BeanB beanB){
+        System.out.println("收到POST请求数据 => " + beanB.toString());
+        return beanB;
     }
-
 }
 
 ```
