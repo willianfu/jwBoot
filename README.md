@@ -13,6 +13,13 @@
 
 @Autowired、@Value、@RequestBody、@RequestParam、@ResponseBody
 
+### 启动测试用例
+1、 拉取项目
+2、 打开jw-boot-test模块下 com.jiawei.jwBoot.JwBootApplicationTest 
+3、 点击Main方法启动
+4、 访问 [http://localhost:8080/jwboot/hello](http://localhost:8080/jwboot/hello) 查看欢迎页
+![jwboot欢迎页](https://images.gitee.com/uploads/images/2020/0512/105156_759eecf5_4928216.png "hello.png")
+
 ### 创建应用
 
 ```java
