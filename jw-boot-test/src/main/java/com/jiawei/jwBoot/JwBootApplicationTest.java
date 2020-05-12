@@ -3,6 +3,13 @@ package com.jiawei.jwBoot;
 import com.jiawei.jwboot.CommandLineRunner;
 import com.jiawei.jwboot.JwApplication;
 import com.jiawei.jwboot.annotation.JwBootApplication;
+import com.jiawei.jwboot.mvc.aop.AopPointcutScan;
+import com.jiawei.jwboot.mvc.servlet.model.ModelAndView;
+import com.jiawei.jwboot.mvc.servlet.model.View;
+import javassist.CannotCompileException;
+import javassist.NotFoundException;
+
+import java.util.Map;
 
 /**
  * @author : willian fu
@@ -12,7 +19,8 @@ import com.jiawei.jwboot.annotation.JwBootApplication;
 public class JwBootApplicationTest implements CommandLineRunner {
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CannotCompileException, InstantiationException, NotFoundException, IllegalAccessException {
+        AopPointcutScan.aopInit(null, "com.jiawei.jwBoot.service.impl.TestServiceImpl");
         JwApplication.run(JwBootApplicationTest.class, args);
     }
 

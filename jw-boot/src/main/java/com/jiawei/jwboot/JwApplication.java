@@ -37,7 +37,7 @@ public class JwApplication  {
      * @return
      */
     public static void run(Class<?> clazz, String[] args) {
-        System.out.println(AppUtil.getStartLogo());
+        System.out.println("\033[0;33m" + AppUtil.getStartLogo() + "\033[0m ");
         ObjectUtil.notNull(clazz);
         classes = IocContainerContext.getInstance().iocInit();
         loadApplicationListener();
