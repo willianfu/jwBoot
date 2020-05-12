@@ -18,14 +18,11 @@
 ```java
 
 @JwBootApplication
-public class ApplicationTest implements CommandLineRunner {
-
-    @Value("app.name")
-    private String appName;
+public class JwBootApplicationTest implements CommandLineRunner {
 
 
     public static void main(String[] args) {
-        JwApplication.run(ApplicationTest.class, args);
+        JwApplication.run(JwBootApplicationTest.class, args);
     }
 
     /**
@@ -35,38 +32,92 @@ public class ApplicationTest implements CommandLineRunner {
      */
     @Override
     public void run(String... args) {
-        System.out.println("启动应用 " + appName);
+        System.out.println("------------JwBoot应用已启动----------");
     }
-
+}
 ```
 
-### 依赖注入
+### Bean托管
+> 被@Component、@Configuration、@Controller、@RestController、@Service、@JwBootApplication注解的类将会被框架扫描并托管到IOC容器中
+> 如果想获取某个被托管的Bean有2种方式
+* 使用@Autowired自动注入
+* IocContainerContext.getInstance().getBeanByClass(xxBean.class)获取
+
+
+### Controller
+> URI映射路径必须以/开头分隔
 
 ```java
 @Controller
-@RequestMapping("/url")
+@RequestMapping("/jwboot")
 public class TestController {
 
-    @Autowired(Bean.class)
-    private Bean beanA;
-
     @Autowired
-    private XXXClass beanB;
-    
-    @RequestMapping(value = "/test", method = HttpMethod.GET)
-    public Object controller1(@RequestParam("name") String name,
-                              @RequestParam("age") Integer age){
-        System.out.println("收到GET请求数据 => name=" + name + " age="+age);
-        return "收到GET请求数据 => name=" + name + " age="+age;
+    private TestService testService;
+
+    //没有其他声明，返回值将默认解析为视图
+    @GetMapping("/hello")
+    public String helloGet(){
+        return testService.helloGet();
+    }
+
+    //ResponseBody注解的方法将默认返回application/json
+    @ResponseBody
+    @PostMapping("/hello")
+    public Object helloPost(HttpServletRequest request,
+                            HttpServletResponse response,
+                            @RequestParam("name") String name,
+                            @RequestParam(value = "sex", required = false) String sex,
+                            @RequestParam(value = "age", defaultValue = "20") Integer age){
+        return testService.helloPost(request, response, name, sex, age);
     }
 
     @ResponseBody
-    @PostMapping(value = "/test")
-    public Object controller2(@RequestBody BeanB beanB){
-        System.out.println("收到POST请求数据 => " + beanB.toString());
-        return beanB;
+    @PutMapping("/hello")
+    public Object helloPut(@RequestBody UserInfoVo userInfo){
+        return testService.helloPut(userInfo);
+    }
+
+    @ResponseBody
+    @DeleteMapping("/hello")
+    public Object helloDelete(@RequestBody UserInfoVo userInfo){
+        return testService.helloDelete(userInfo);
     }
 }
-
 ```
+也可以全部使用@RequestMapping，但是必须有一个方法声明请求方法
+```java
+    @RequestMapping(value="/hello", method=HttpMethod.POST)
+```
+ 
+也可以使用@RestController直接注解Controller
+> 被@RestController注解的类其中所有的方法返回值将默认为application/json
 
+  
+#### 依赖注入
+> 可以声明为接口/抽象类/类
+```java
+    //默认注入，当只有一个被IOC托管的实现类时不用声明,可以注入私有属性
+    @Autowired
+    private TestService testService;
+
+    //声明式注入，当被IOC托管的bean有多个实例时必须声明，否则将报错
+    @Autowired(ServiceImpl.class)
+    private TestService testService;
+```
+#### 配置文件注入
+> 默认读取resource/application.properties配置文件      
+> 只能对基础类型/基础类型的包装类进行配置注入(String Integer Long Short Boolean...)
+ ```java
+     //注入string
+     @Value("app.name")
+     private String appName;
+ 
+     //注入Inteager
+     @Value("server.port")
+     private Integer serverPort;
+ ```
+
+#### 配置启动端口
+> 在application.properties配置文件中添加 server.port配置即可
+-----
