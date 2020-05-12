@@ -7,11 +7,29 @@
 
 已实现的功能注解有
 
-@Component、@Configuration、@Bean
+`@Component`、`@Configuration`、`@Bean`
 
-@Controller、@RestController、@Service、 @RequestMapping、@GetMapping、@PostMapping、@PutMapping、@DeleteMapping
+`@Controller`、`@RestController`、`@Service`、 `@RequestMapping`、`@GetMapping`、`@PostMapping`、`@PutMapping`、`@DeleteMapping`
 
-@Autowired、@Value、@RequestBody、@RequestParam、@ResponseBody
+`@Autowired`、`@Value`、`@RequestBody`、`@RequestParam`、`@ResponseBody`
+
+### 在IDEA中启动测试用例
+
+1、 拉取项目  
+
+2、 打开 `jw-boot-test` 模块下 `com.jiawei.jwBoot.JwBootApplicationTest`
+
+3、 点击Main方法启动  
+![启动日志](https://images.gitee.com/uploads/images/2020/0512/105352_c1c20b3d_4928216.png "日志.png")  
+
+4、 访问 [http://localhost:8080/jwboot/hello](http://localhost:8080/jwboot/hello) 查看欢迎页  
+![jwboot欢迎页](https://images.gitee.com/uploads/images/2020/0512/105156_759eecf5_4928216.png "hello.png")  
+ 
+### 打成可执行jar包
+
+点击 父maven module 的 `install`命令 ，再点击 `jw-boot-test`的    `package` 命令 即可在target目录下打出可执行jar包
+使用 `java -jar  xxx.jar` 即可启动项目
+
 
 ### 创建应用
 
