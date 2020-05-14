@@ -10,6 +10,9 @@
   <modules>
     <module>jw-boot</module>
     <module>jw-boot-test</module>
+    <module>jw-boot-thymeleaf-pulgin</module>
+    <module>jw-boot-core</module>
+    <module>jw-boot-stater-aop</module>
   </modules>
   <packaging>pom</packaging>
   <properties>
